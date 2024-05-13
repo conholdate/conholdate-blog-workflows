@@ -1,2 +1,2 @@
 # conholdate-blog-workflows
-# v5.1
+# v5.2
