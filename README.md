@@ -1,2 +1,2 @@
 # conholdate-blog-workflows
-# v17.9
+# v18.0
