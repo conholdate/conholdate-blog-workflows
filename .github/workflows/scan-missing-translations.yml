@@ -211,7 +211,7 @@ jobs:
           # ls -R .
           echo ==============================
           pip install --upgrade pip
-          pip install -r tools/detect_missing_translation/requirements.txt
+          pip install -r tools/translation_agent/requirements.txt
           echo ==============================
 
       #############################################################
