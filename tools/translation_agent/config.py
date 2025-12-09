@@ -37,7 +37,7 @@ LOC_GIT_REPO_CONHOLDATE_CLOUD   = "blog-checkedout-repo/content/Conholdate.Cloud
 # SUPPORTED LANGUAGES ===========================
 LANGS_ASPOSE_COM        = "ar|cs|de|es|fa|fr|he|id|it|ja|ko|pl|pt|ru|sv|th|tr|uk|vi|zh|zh-hant"
 LANGS_GROUPDOCS_COM     = "ar|cs|de|es|fa|fr|he|id|it|ja|ko|nl|pl|pt|ru|th|tr|uk|vi|zh|zh-hant"
-LANGS_CONHOLDATE_COM    = "ar|de|es|fa|fr|id|it|ja|ko|nl|pl|pt|ru|th|tr|vi|zh|cs"
+LANGS_CONHOLDATE_COM    = "ar|de|es|fa|fr|id|it|ja|ko|nl|pl|pt|ru|th|tr|vi|zh"
 LANGS_ASPOSE_CLOUD      = "ar|da|de|el|es|fa|fr|he|hu|it|ja|ka|ko|pt|ru|th|tr|uk|vi|zh|zh-tw"
 LANGS_GROUPDOCS_CLOUD   = "ar|de|es|fa|fr|id|it|ja|ko|pl|pt|ru|th|tr|uk|vi|zh|zh-hant"
 LANGS_CONHOLDATE_CLOUD  = "ar|cs|de|es|fa|fr|he|id|it|ja|ko|nl|pl|pt|ru|sv|th|tr|uk|vi|zh|zh-hant"
