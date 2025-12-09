@@ -240,8 +240,8 @@ jobs:
           # Domain (always required)
           args+=("--domain" "${{ matrix.domain_value }}")
 
-          # # Key
-          # args+=("--key" "${{ secrets.PROFESSIONALIZE_LLM_BLOGS_TEAM }}")
+          # Key
+          args+=("--key" "${{ secrets.PROFESSIONALIZE_LLM_BLOGS_TEAM }}")
 
           # # Product
           # if [[ -n "${{ inputs.product }}" && "${{ inputs.product }}" != "ALL" ]]; then
