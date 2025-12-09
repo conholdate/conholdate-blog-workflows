@@ -123,7 +123,7 @@ on:
         default: "ALL"   # 0 or blank means no limit
 
 jobs:
-  detect-missing-translations:
+  translate-blog-posts:
     runs-on: ubuntu-latest
 
     steps:
@@ -136,7 +136,7 @@ jobs:
       #############################################################
       # 1. CHECKOUT TARGET REPO (blog.groupdocs.com)
       #############################################################
-      - name: Set repository based on domain
+      - name: Set Repository based on Domain
         id: maprepo
         run: |
           if [ "${{ inputs.domain }}" = "blog.aspose.com" ]; then
@@ -189,7 +189,7 @@ jobs:
       #############################################################
       # 3. Create Virtual Environment and Install Python Dependencies
       #############################################################
-      - name: Print all environment variables
+      - name: Create VENV and Print all environment variables
         run: env
       
       - name: Create virtual environment
@@ -211,7 +211,7 @@ jobs:
       #############################################################
       # 4. RUN TRANSLATION SCRIPT
       #############################################################
-      - name: Run translation detection
+      - name: Run Translator Agent
         env:
           TARGET_REPO: blog-checkedout-com/content/
           GOOGLE_CREDENTIALS_JSON_SK: ${{secrets.GOOGLE_CREDENTIALS_JSON_SK}}
