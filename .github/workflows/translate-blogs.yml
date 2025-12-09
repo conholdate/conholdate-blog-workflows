@@ -243,7 +243,7 @@ jobs:
           fi
 
           # Run the python script safely
-          python tools/translation_agent/scan_missing_translations.py "${args[@]}"
+          python tools/translation_agent/translator.py "${args[@]}"
 
       #############################################################
       # 5. COMMIT CHANGES BACK TO TARGET REPO
