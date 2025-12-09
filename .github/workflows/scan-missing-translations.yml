@@ -249,8 +249,8 @@ jobs:
           fi
 
           # Translate
-          if [[ -n "${{ inputs.translate }}" == "true" ]]; then
-            args+=("--translate true")
+          if [[ "${{ inputs.translate }}" == "true" ]]; then
+            args+=("--translate" "true")
           fi
 
           # Run the python script safely
