@@ -1,0 +1,21 @@
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# IDEs / editors
+.vscode/
+.idea/
+
+gsheetapi-missing-translations-sk.json
+blog-checkedout-repo/
