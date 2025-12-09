@@ -1,4 +1,4 @@
-name: Scan Missing Translations
+name: Scan Blogs - Missing Translations
 
 on:
   workflow_dispatch:
@@ -129,7 +129,7 @@ on:
       #   default: false
 
 jobs:
-  detect-missing-translations:
+  scan-blogs-missing-translations:
     runs-on: ubuntu-latest
 
     strategy:
