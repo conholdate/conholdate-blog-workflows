@@ -306,8 +306,8 @@ jobs:
           REPO_SLUG="${{ env.REPO }}" # e.g., groupdocs/groupdocs-blog
           PAT_TOKEN="${{ secrets.PAT_GITHUB_SK }}"
           
-          # Define the push branch (e.g., 'main' or your specific feature branch)
-          PUSH_BRANCH="main" 
+          # Use the dynamic branch name from Step 1
+          PUSH_BRANCH="${{ env.DEFAULT_BRANCH }}"
           
           echo "Pushing changes to branch: $PUSH_BRANCH on $REPO_SLUG"
           
