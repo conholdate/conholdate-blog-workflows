@@ -340,7 +340,7 @@ class FrontmatterTranslatorAgent:
             """
 
         # ============================================================================
-        print(f"\n📋 Frontmatter Translating: ({text})...")
+        # print(f"\n📋 Frontmatter Translating: ({text})...")
         # ============================================================================
 
         translated = call_openai(

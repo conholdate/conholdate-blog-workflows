@@ -297,7 +297,7 @@ jobs:
 
           # --- Commit ---
           echo "Committing changes..."
-          git commit -m "Auto: Add missing translation files for ${{ inputs.domain }}"
+          git commit -m "Daily Translation by Agent: ${{ inputs.domain }}"
 
           # --- Push ---
           # You must use the PAT for authentication to push to the remote repository.
