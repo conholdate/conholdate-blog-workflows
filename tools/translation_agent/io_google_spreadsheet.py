@@ -20,9 +20,8 @@ printing_allowed = False
 # Write Function
 # ======================================================================================
 def get_gc():
-    print("In GET GC....")
-    
-    print(f"✅ GOOGLE_CREDENTIALS_JSON_SK: {json_content}")
+    # print("In GET GC....")
+    # print(f"✅ GOOGLE_CREDENTIALS_JSON_SK: {json_content}")
     if json_content:
         # This path runs in GitHub Actions (loads from environment secret)
         try:
