@@ -33,33 +33,39 @@ jobs:
       - name: Set repository based on domain
         id: maprepo
         run: |
+
+          DEFAULT_BRANCH_NAME="master"
+
           if [ "${{ matrix.domain_value }}" = "blog.aspose.com" ]; then
             echo "REPO=aspose/aspose-blog" >> $GITHUB_ENV
-
+            DEFAULT_BRANCH_NAME="master"
 
           elif [ "${{ matrix.domain_value }}" = "blog.groupdocs.com" ]; then
             echo "REPO=groupdocs/groupdocs-blog" >> $GITHUB_ENV
-
+            DEFAULT_BRANCH_NAME="master"
 
           elif [ "${{ matrix.domain_value }}" = "blog.conholdate.com" ]; then
             echo "REPO=conholdate/conholdate-blog" >> $GITHUB_ENV
+            DEFAULT_BRANCH_NAME="main"
           
           elif [ "${{ matrix.domain_value }}" = "blog.aspose.cloud" ]; then
             echo "REPO=aspose-cloud/aspose-cloud-blog" >> $GITHUB_ENV
-
+            DEFAULT_BRANCH_NAME="master"
 
           elif [ "${{ matrix.domain_value }}" = "blog.groupdocs.cloud" ]; then
             echo "REPO=groupdocs-cloud/groupdocs-cloud-blog" >> $GITHUB_ENV
+            DEFAULT_BRANCH_NAME="master"
           
           elif [ "${{ matrix.domain_value }}" = "blog.conholdate.cloud" ]; then
             echo "REPO=conholdate-cloud/blog.conholdate.cloud" >> $GITHUB_ENV
+            DEFAULT_BRANCH_NAME="main"
 
           else
             echo "Unknown domain!"; exit 1
           fi
 
           echo "REPO_PATH=blog-checkedout-repo" >> $GITHUB_ENV
-
+          echo "DEFAULT_BRANCH=$DEFAULT_BRANCH_NAME" >> $GITHUB_ENV
           echo "Selected repository: $REPO"
           echo "Checkout directory: $REPO_PATH"
 
