@@ -265,6 +265,7 @@ jobs:
       # 5.1 Commit the newly created files
       - name: Prepare Git for Commit
         id: prep
+        if: success()
         run: |
           # Move into the checked-out directory
           cd ${{ env.REPO_PATH }}
@@ -281,33 +282,56 @@ jobs:
           if [ -n "$(git diff --cached --name-only)" ]; then
             echo "COMMITTED_CHANGES=true" >> $GITHUB_ENV
           else
-            echo "No translation changes detected. Skipping PR creation."
+            echo "No translation changes detected. Skipping COMMIT, PR or PUSH."
             echo "COMMITTED_CHANGES=false" >> $GITHUB_ENV
+            exit 0
           fi
+
+          # --- Commit ---
+          echo "Committing changes..."
+          git commit -m "Auto: Add missing translation files for ${{ inputs.domain }}"
+
+          # --- Push ---
+          # You must use the PAT for authentication to push to the remote repository.
+          # The URL format is https://<token>@github.com/<repo>.git
           
-      
-      # 5.2 Create the Pull Request using Peter Evans' Action
-      - name: Create Pull Request
-        if: env.COMMITTED_CHANGES == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.PAT_GITHUB_SK }} 
+          REPO_SLUG="${{ env.REPO }}" # e.g., groupdocs/groupdocs-blog
+          PAT_TOKEN="${{ secrets.PAT_GITHUB_SK }}"
           
-          # The path must be set to the checked out repository directory
-          path: ${{ env.REPO_PATH }} 
+          # Define the push branch (e.g., 'main' or your specific feature branch)
+          PUSH_BRANCH="main" 
           
-          # The branch name the action will create and push
-          branch: blogteam/translation-detection-${{ github.run_id }} 
+          echo "Pushing changes to branch: $PUSH_BRANCH on $REPO_SLUG"
           
-          # The base branch (where the changes will be merged into)
-          base: main 
+          # Push using the PAT for authentication
+          git push https://${PAT_TOKEN}@github.com/${REPO_SLUG}.git HEAD:$PUSH_BRANCH
           
-          # The commit message uses the staged changes from the previous step
-          commit-message: "Auto: Add missing translation files for ${{ inputs.domain }}"
-          title: "🤖 Missing Translations for ${{ inputs.domain }}"
-          body: |
-            Automatically generated PR containing missing translation files.
+          echo "✅ Successfully pushed changes to $REPO_SLUG/$PUSH_BRANCH"          
+
+      # ===========================================================
+      # # 5.2 Create the Pull Request using Peter Evans' Action
+      # ===========================================================
+      # - name: Create Pull Request
+      #   if: env.COMMITTED_CHANGES == 'true'
+      #   uses: peter-evans/create-pull-request@v6
+      #   with:
+      #     token: ${{ secrets.PAT_GITHUB_SK }} 
+          
+      #     # The path must be set to the checked out repository directory
+      #     path: ${{ env.REPO_PATH }} 
+          
+      #     # The branch name the action will create and push
+      #     branch: blogteam/translation-detection-${{ github.run_id }} 
+          
+      #     # The base branch (where the changes will be merged into)
+      #     base: main 
+          
+      #     # The commit message uses the staged changes from the previous step
+      #     commit-message: "Auto: Add missing translation files for ${{ inputs.domain }}"
+      #     title: "🤖 Missing Translations for ${{ inputs.domain }}"
+      #     body: |
+      #       Automatically generated PR containing missing translation files.
             
-            * Triggered by: **${{ github.actor }}**
-            * Domain: **${{ inputs.domain }}**
-            * Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #       * Triggered by: **${{ github.actor }}**
+      #       * Domain: **${{ inputs.domain }}**
+      #       * Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
