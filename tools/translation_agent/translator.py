@@ -194,7 +194,7 @@ def write_markdown_file(file_path: str, frontmatter: Dict[str, Any], content: st
     )
     
     # Combine and write
-    full_content = f"---\n{frontmatter_str}---\n{content}"
+    full_content = f"---\n{frontmatter_str}---\n\n{content}"
     
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(full_content)
