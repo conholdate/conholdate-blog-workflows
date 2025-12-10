@@ -333,6 +333,7 @@ class FrontmatterTranslatorAgent:
             3. Keep technical terms accurate
             4. Preserve any URLs or file paths
             5. Provide ONLY the translation, no explanations.
+            6. Do NOT add any additional formatting markers or identifier like ```markdown``` at the start or end of the translated content.
 
             Below is the Text to translate:
             {text}
@@ -459,7 +460,7 @@ class ContentTranslatorAgent:
                 4. Maintain the same structure and formatting
                 5. If a URL contains domain name "{domain}", add language code "{target_lang}" at the end of URL
                     - (e.g., turn such urls (https://{domain}/cells/<rest of URL>/) to this (https://{domain}/{target_lang}/cells/<rest of URL>) )
-                6. Do NOT include any markers of identifier like ```markdown``` at the start or end of the translated content.
+                6. Do NOT include any markers or identifier like ```markdown``` at the start or end of the translated content.
                 7. Keep the same tone and style
                 8. Keep technical terms accurate
                 9. Provide ONLY the translated markdown, no explanations or preamble is needed.
