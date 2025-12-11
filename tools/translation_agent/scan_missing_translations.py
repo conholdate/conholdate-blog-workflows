@@ -23,7 +23,7 @@ parser = argparse.ArgumentParser(description="Detect Missing Translations")
 parser.add_argument(
     "--key",
     type=str,
-    required=True,
+    required=False,
     help="PROFESSIONALIZE LLM API KEY (REQUIRED)"
 )
 
