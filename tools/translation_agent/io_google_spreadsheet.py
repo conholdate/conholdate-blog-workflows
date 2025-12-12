@@ -83,7 +83,7 @@ def write_to_google_spreadsheet(
 
     try:
         # 1. Authenticate with the Google Sheets API.
-        gc = get_gc()
+        gc = get_gc() # Google Crednetials
         if gc is None:
             print("Failed to initialize Google Sheets client.", file=sys.stderr)
             return None
@@ -203,7 +203,7 @@ def read_from_google_spreadsheet(spreadsheet_id: str) -> List[list]:
                      Returns an empty list if an error occurs.
     """
     try:
-        gc = get_gc()
+        gc = get_gc() # Google Crednetials
         if gc is None:
             print("Failed to initialize Google Sheets client.", file=sys.stderr)
             return None

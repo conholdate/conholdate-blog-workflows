@@ -4,6 +4,10 @@ import openpyxl
 import gspread
 import argparse
 import config
+import time
+import uuid
+import random
+
 from utils import send_metrics
 from config import Stats
 
@@ -16,9 +20,6 @@ from git_repo_utils import clone_or_pull_repos
 from io_google_spreadsheet import write_to_google_spreadsheet
 from translation_files_managers import delete_translation_files
 from translator import start_translation
-
-import time
-import uuid
 
 # =====================================================================
 # Parse command-line arguments
@@ -228,16 +229,31 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
                 converted_result.append(["", "!!! NO MISSING TRANSLATION FOUND !!!"])
             
             # print (f"Modified Investigation Result ->\n{converted_result}")
-            if config.PRODUCTION_ENV:
-                sheet_link = write_to_google_spreadsheet(sheet_id, valid_extensions , config.HEADERS_MISSING_TRANSLATIONS, converted_result)
-                print(f"@ {sheet_link}")
-            else:
-                sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, valid_extensions , config.HEADERS_MISSING_TRANSLATIONS, converted_result,f"{domain}-{current_date}")
-                print(f"@ {sheet_link}")
+
+
+            max_retries = 3
+            # generate random delay between 2 to 5 seconds
+            retry_delay = random.randint(2, 6)
+
+            sheet_link = None
+
+            for attempt in range(max_retries):
+                if config.PRODUCTION_ENV:
+                    sheet_link = write_to_google_spreadsheet(sheet_id, valid_extensions, config.HEADERS_MISSING_TRANSLATIONS, converted_result)
+                else:
+                    sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, valid_extensions, config.HEADERS_MISSING_TRANSLATIONS, converted_result, f"{domain}-{current_date}")
+
+                if sheet_link:
+                    print(f"@ {sheet_link}")
+                    break  # Success! Exit loop
+                else:
+                    print(f"Attempt {attempt + 1} failed. Retrying in {retry_delay}s...")
+                    time.sleep(retry_delay)
 
             if sheet_link:
                 missing_translations_stats.items_succeeded = missing_translations_stats.items_discovered
             else:
+                print("Failed to write to spreadsheet after multiple attempts.")
                 missing_translations_stats.items_failed = missing_translations_stats.items_discovered
 
 
