@@ -1,3 +1,4 @@
+
 DOMAIN_ASPOSE_COM           = "blog.aspose.com"
 DOMAIN_GROUPDOCS_COM        = "blog.groupdocs.com"
 DOMAIN_CONHOLDATE_COM       = "blog.conholdate.com"
@@ -5,6 +6,7 @@ DOMAIN_ASPOSE_CLOUD         = "blog.aspose.cloud"
 DOMAIN_GROUPDOCS_CLOUD      = "blog.groupdocs.cloud"
 DOMAIN_CONHOLDATE_CLOUD     = "blog.conholdate.cloud"
 
+PRODUCTION_ENV = True
 
 # KEYS ==========================================
 KEY_SHEET_ID            = "sheet_id"
@@ -170,7 +172,97 @@ HEADERS_SUMMARY = [
     KEY_IS_SEND_EMAIL
 ]
 
+
 PRODUCT_MAP = {
+
+    DOMAIN_ASPOSE_COM: {
+        "3d"        : "Aspose.3D",
+        "barcode"   : "Aspose.BarCode",
+        "cad"       : "Aspose.CAD",
+        "cells"     : "Aspose.Cells",
+        "diagram"   : "Aspose.Diagram",
+        "drawing"   : "Aspose.Drawing",
+        "email"     : "Aspose.Email",
+        "finance"   : "Aspose.Finance",
+        "font"      : "Aspose.Font",
+        "gis"       : "Aspose.GIS",
+        "html"      : "Aspose.HTML",
+        "imaging"   : "Aspose.Imaging",
+        "note"      : "Aspose.Note",
+        "ocr"       : "Aspose.OCR",
+        "omr"       : "Aspose.OMR",
+        "page"      : "Aspose.Page",
+        "pdf"       : "Aspose.PDF",
+        "psd"       : "Aspose.PSD",
+        "pub"       : "Aspose.PUB",
+        "slides"    : "Aspose.Slides",
+        "svg"       : "Aspose.SVG",
+        "tasks"     : "Aspose.Tasks",
+        "tex"       : "Aspose.TeX",
+        "total"     : "Aspose.Total",
+        "words"     : "Aspose.Words",
+        "zip"       : "Aspose.ZIP",
+        "medical"   : "Aspose.Medical",
+    },
+    DOMAIN_ASPOSE_CLOUD: {
+        "3d"        : "Aspose.3D Cloud",
+        "barcode"   : "Aspose.BarCode Cloud",
+        "cad"       : "Aspose.CAD Cloud",
+        "cells"     : "Aspose.Cells Cloud",
+        "diagram"   : "Aspose.Diagram Cloud",
+        "email"     : "Aspose.Email Cloud",
+        "html"      : "Aspose.HTML Cloud",
+        "imaging"   : "Aspose.Imaging Cloud",
+        "ocr"       : "Aspose.OCR Cloud",
+        "omr"       : "Aspose.OMR Cloud",
+        "pdf"       : "Aspose.PDF Cloud",
+        "slides"    : "Aspose.Slides Cloud",
+        "tasks"     : "Aspose.Tasks Cloud",
+        "total"     : "Aspose.Total Cloud",
+        "words"     : "Aspose.Words Cloud",
+    },
+    DOMAIN_GROUPDOCS_COM: {
+        "annotation"    : "GroupDocs.Annotation",
+        "assembly"      : "GroupDocs.Assembly",
+        "classification": "GroupDocs.Classification",
+        "comparison"    : "GroupDocs.Comparison",
+        "conversion"    : "GroupDocs.Conversion",
+        "editor"        : "GroupDocs.Editor",
+        "markdown"      : "GroupDocs.Markdown",
+        "merger"        : "GroupDocs.Merger",
+        "metadata"      : "GroupDocs.Metadata",
+        "parser"        : "GroupDocs.Parser",
+        "redaction"     : "GroupDocs.Redaction",
+        "search"        : "GroupDocs.Search",
+        "signature"     : "GroupDocs.Signature",
+        "total"         : "GroupDocs.Total",
+        "viewer"        : "GroupDocs.Viewer",
+        "watermark"     : "GroupDocs.Watermark",
+    },
+    DOMAIN_GROUPDOCS_CLOUD: {
+        "annotation"    : "GroupDocs.Annotation Cloud",
+        "assembly"      : "GroupDocs.Assembly Cloud",
+        "classification": "GroupDocs.Classification Cloud",
+        "comparison"    : "GroupDocs.Comparison Cloud",
+        "conversion"    : "GroupDocs.Conversion Cloud",
+        "editor"        : "GroupDocs.Editor Cloud",
+        "merger"        : "GroupDocs.Merger Cloud",
+        "metadata"      : "GroupDocs.Metadata Cloud",
+        "parser"        : "GroupDocs.Parser Cloud",
+        "rewriter"      : "GroupDocs.Rewriter Cloud",
+        "signature"     : "GroupDocs.Signature Cloud",
+        "total"         : "GroupDocs.Total Cloud",
+        "translation"   : "GroupDocs.Translation Cloud",
+        "viewer"        : "GroupDocs.Viewer Cloud",
+        "watermark"     : "GroupDocs.Watermark Cloud",
+    },
+    DOMAIN_CONHOLDATE_COM: {
+        "total": "Conholdate.Total",
+    },
+    DOMAIN_CONHOLDATE_CLOUD: {
+        "total": "Conholdate.Total Cloud",
+    },
+
     # Aspose Product Family
     "aspose.3d"         : "3d",
     "aspose.barcode"    : "barcode",
@@ -310,3 +402,34 @@ PRODUCT_MAP = {
 
 
 }
+
+# METRICS CONFIGURATION ========================
+METRICS_URL     = "https://script.google.com/macros/s/AKfycbyCHwElrM6RcYLi0JNQAkJmzGrBjAhf28mKXVyub_6SdaZ2ITvzCwfM5xCLE7rmuxio/exec"
+METRICS_TOKEN   = "9q9TWN5GaH6cn"
+
+AGENT_BLOG_SCANNER          = "Blog Scanner Agent"
+AGENT_BLOG_POST_TRANSLATOR  = "Blog Translator Agent"
+
+AGENT_OWNER                 = "Shoaib Khan"
+
+JOB_ITEM_MISS_TRANSLATIONS   = "Missing Translations"
+JOB_ITEM_TRANSLATIONS        = "Translations Added"
+
+JOB_TYPE_SCANNING           = "Scan Missing Translations"
+JOB_TYPE_TRANSLATION        = "Blog Post Translation"
+
+JOB_ALL_PRODUCTS            = "ALL"
+JOB_ALL_PLATFORMS           = "ALL"
+
+JOB_STATUS_SUCCESS          = "success"
+JOB_STATUS_FAILED           = "failed"
+JOB_STATUS_PARTIAL_FAIL     = "partial_fail"
+
+
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    items_discovered: int
+    items_failed: int
+    items_succeeded: int

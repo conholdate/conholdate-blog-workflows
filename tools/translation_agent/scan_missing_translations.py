@@ -4,6 +4,8 @@ import openpyxl
 import gspread
 import argparse
 import config
+from utils import send_metrics
+from config import Stats
 
 from google.oauth2.service_account import Credentials
 from openpyxl.utils import get_column_letter
@@ -14,6 +16,9 @@ from git_repo_utils import clone_or_pull_repos
 from io_google_spreadsheet import write_to_google_spreadsheet
 from translation_files_managers import delete_translation_files
 from translator import start_translation
+
+import time
+import uuid
 
 # =====================================================================
 # Parse command-line arguments
@@ -67,12 +72,9 @@ target_author       = args.author.strip().lower()  if args and args.author  else
 translation_limit   = args.limit if args and args.limit is not None else None
 is_translate        = args.translate if args and args.translate is not None else False
 
-
-# =============
-TESTING = False
-# =============
-
+# ===============================================
 # APP support following DOMAINS
+
 all_domains = {
     config.DOMAIN_ASPOSE_COM,
     config.DOMAIN_GROUPDOCS_COM,
@@ -105,9 +107,36 @@ SUMMARY_DATA = []
 # -------------------------
 
 def main():
-    # clone_or_pull_repos()
-    validate_existing_translation_files(selected_domains)
-    # delete_extra_translations()
+    start_time = time.time()
+    status = "success"
+    try:
+        # clone_or_pull_repos()
+        metrics = validate_existing_translation_files(selected_domains)
+        # delete_extra_translations()
+    except Exception as e:
+        status = "error"
+        print(f"Error during execution: {e}")
+        raise  # Re-raise to maintain original behavior
+
+    end_time = time.time()
+    run_duration_ms = int((end_time - start_time) * 1000)
+    run_id = str(uuid.uuid4())
+
+    current_domain = selected_domains[0] if len(selected_domains) == 1 else ""
+    product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.JOB_ALL_PRODUCTS
+
+
+    send_metrics(    run_id, 
+                            status, 
+                            run_duration_ms, 
+                            agent_name=config.AGENT_BLOG_SCANNER, 
+                            job_type= config.JOB_TYPE_SCANNING,
+                            item_name=config.JOB_ITEM_MISS_TRANSLATIONS,
+                            items_discovered=metrics.items_discovered,
+                            items_failed=metrics.items_failed,
+                            items_succeeded=metrics.items_succeeded,
+                            product=current_domain #product_full_name
+                        )
 
     print("\n========= END =========")
 
@@ -120,6 +149,7 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
     Args:
         path_to_valid_extensions (dict): A dictionary mapping paths to their valid file extensions.
     """
+    missing_translations_stats = Stats(0, 0, 0)
 
     # output_path = "/Users/Apple/Library/CloudStorage/GoogleDrive-shoaib.khan@aspose.com/My Drive/Blogs Team/missing-translations/"
     global target_product
@@ -185,6 +215,8 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
                     official_handle = config.DEV_NORMALIZED.get(person)  # safely get the handle
                     # print(f"handle: {official_handle}")
                     
+                    missing_translations_stats.items_discovered += item[config.KEY_MISSING_COUNT]
+
                     if official_handle:
                         if official_handle not in handles_list:
                             handles_list.append(official_handle)
@@ -196,12 +228,18 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
                 converted_result.append(["", "!!! NO MISSING TRANSLATION FOUND !!!"])
             
             # print (f"Modified Investigation Result ->\n{converted_result}")
-            if TESTING:
-                sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, valid_extensions , config.HEADERS_MISSING_TRANSLATIONS, converted_result,f"{domain}-{current_date}")
-                print(f"@ {sheet_link}")
-            else:
+            if config.PRODUCTION_ENV:
                 sheet_link = write_to_google_spreadsheet(sheet_id, valid_extensions , config.HEADERS_MISSING_TRANSLATIONS, converted_result)
                 print(f"@ {sheet_link}")
+            else:
+                sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, valid_extensions , config.HEADERS_MISSING_TRANSLATIONS, converted_result,f"{domain}-{current_date}")
+                print(f"@ {sheet_link}")
+
+            if sheet_link:
+                missing_translations_stats.items_succeeded = missing_translations_stats.items_discovered
+            else:
+                missing_translations_stats.items_failed = missing_translations_stats.items_discovered
+
 
             handles_string = " ".join(handles_list)
             print(f"handles_string: {handles_string}\n")
@@ -215,9 +253,9 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
             # ========================================
             # Translate Missing Files
             # ========================================
-            print(f"Translating Missing Files for: {domain}...")
-            # print(f"Blog Post List:\n{converted_result}")
 
+            # print(f"Blog Post List:\n{converted_result}")
+            
             # print("Domain:", domain)
             # print("Product:", target_product)
             # print("Author:", target_author)
@@ -246,9 +284,12 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
             print(f"args: {args}")
             
             if is_translate:
-                print("✅ == STARTING TRANSLATION == ✅")
-                start_translation(args, posts_list_to_translate=converted_result)
-
+                print(f"Translating Missing Files for: {domain}...")
+                print("✅ == AUTO TRANSLATION TEMPORARILY PAUSED == ✅")
+                # start_translation(args, posts_list_to_translate=converted_result)
+            else:
+                print("✅ == Scanning COMPLETED == ✅")
+                print("❌ == AUTO TRANSLATION NOT REQUESTED == ❌")
 
         else:
             print(f"The path '{local_repo_path}' does not exist.")
@@ -256,12 +297,14 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
 
     print("=================================================================")
 
-    if TESTING:
-        sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, None ,config.HEADERS_SUMMARY, SUMMARY_DATA, f"SUM-{current_date}")
-    else:
+    if config.PRODUCTION_ENV:
         sheet_link = write_to_google_spreadsheet(config.SHEET_ID_SUMMARY, None , config.HEADERS_SUMMARY, SUMMARY_DATA)
+    else:
+        sheet_link = write_to_google_spreadsheet(config.SHEET_ID_TEST_QA, None ,config.HEADERS_SUMMARY, SUMMARY_DATA, f"SUM-{current_date}")
 
     print(f"Summary Saved @ > {sheet_link}")
+
+    return missing_translations_stats
 
 # =========================================
 def validate_blog_dirs(base_path, valid_md_file_regex, valid_extensions, total_valid_files_count):

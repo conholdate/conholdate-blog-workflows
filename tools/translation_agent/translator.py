@@ -688,10 +688,10 @@ class TranslationOrchestrator:
 
         for item in posts_list_to_translate:
 
-            # print(f"✅ Translating: {item}")
-            # print(f"\n{'='*60}")
-            # print(f"{item[1]}\t>\t{item[2]}\tby\t>\t{item[3]}\tinto\t{item[5]}")
-            # print(f"\n{'='*60}")
+            print(f"✅ Translating: {item}")
+            print(f"\n{'='*60}")
+            print(f"{item[1]}\t>\t{item[2]}\tby\t>\t{item[3]}\tinto\t{item[5]}")
+            print(f"\n{'='*60}")
 
             domain = item[0]
             product = item[1]
@@ -897,7 +897,12 @@ def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
 
     if posts_list is None:
         print("Posts List Found NONE - READING FROM GOOGLE SHEET")
-        posts_list = read_from_google_spreadsheet(config.domains_data[currentDomain][config.KEY_SHEET_ID])
+        
+        if config.PRODUCTION_ENV:
+            posts_list = read_from_google_spreadsheet(config.domains_data[currentDomain][config.KEY_SHEET_ID])
+        else: #Test Environment
+            posts_list = read_from_google_spreadsheet(config.SHEET_ID_TEST_QA)
+            
 
 
     # PRINTING POSTS LIST ==========================
