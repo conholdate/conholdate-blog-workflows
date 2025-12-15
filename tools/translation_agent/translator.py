@@ -14,7 +14,12 @@ from io_google_spreadsheet import read_from_google_spreadsheet
 import json
 import argparse
 import config
+import time
+import uuid
+import random
 
+from utils import send_metrics
+from config import Stats
 
 # ============================================================================
 def call_openai(client: OpenAI, system_prompt: str, user_prompt: str, temperature: float = 0.3, max_tokens: int = None, model: str = "recommended") -> str:
@@ -684,6 +689,8 @@ class TranslationOrchestrator:
                         translation_limit=None, 
                         posts_list_to_translate: List[List[Any]]=None):
 
+        missing_translations_stats = Stats(0, 0, 0)
+
         print(f"   Translating {len(posts_list_to_translate)} Items")
 
         for item in posts_list_to_translate:
@@ -697,6 +704,8 @@ class TranslationOrchestrator:
             product = item[1]
             slug = item[2]
             missed_langs = item[5].split(',')
+
+            missing_translations_stats.items_discovered += len(missed_langs)
 
             blog_main_repo = self.config.domain_map.get(domain)
 
@@ -720,7 +729,10 @@ class TranslationOrchestrator:
                         continue
 
                     print(f"✅ Translating: {slug} into {missed_lang}...")
-                    self.translate_file(index_md_file_path, missed_lang, domain)
+                    translation_file_path = self.translate_file(index_md_file_path, missed_lang, domain)
+
+                    if translation_file_path:
+                        missing_translations_stats.items_succeeded += 1
 
                 except Exception as e:
                     msg = str(e)
@@ -733,7 +745,9 @@ class TranslationOrchestrator:
 
                     print(f"❌ Error translating {index_md_file_path} to {missed_lang}: {e}\n")
                     continue
-
+        missing_translations_stats.items_failed = missing_translations_stats.items_discovered - missing_translations_stats.items_succeeded
+    
+        return missing_translations_stats
     # ============================================================================
     # SINGLE FILE TRANSLATION IN ALL MISSING LANGUAGES
     # ============================================================================
@@ -808,7 +822,7 @@ class TranslationOrchestrator:
         input_file = Path(input_path)
         output_path = input_file.parent / f"index.{target_lang}.md"
         
-        write_markdown_file(
+        result = write_markdown_file(
             str(output_path), 
             translated_frontmatter, 
             translated_content
@@ -874,80 +888,111 @@ def build_parser():
 
 def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
     print("⚠️  start_translation Called ⚠️")
-
-    parsed = None
-
-    if args is not None:
-        parser = build_parser()
-        parsed = parser.parse_args(args)
-
-    currentDomain = passed_domain = parsed.domain.strip().lower() if parsed else None
+    start_time = time.time()
+    status = "success"
+    try:
     
-    key                 = parsed.key.strip() if parsed and parsed.key else None
-    target_product      = parsed.product.strip().lower() if parsed and parsed.product else None
-    target_author       = parsed.author.strip().lower()  if parsed and parsed.author  else None
-    translation_limit   = parsed.limit if parsed and parsed.limit is not None else None
+        parsed = None
 
-    posts_list = posts_list_to_translate or (parsed.posts_list if parsed else None)
+        if args is not None:
+            parser = build_parser()
+            parsed = parser.parse_args(args)
 
-    print("Domain:", currentDomain)
-    print("Product:", target_product)
-    print("Author:", target_author)
-    print("Limit:", translation_limit)
-
-    if posts_list is None:
-        print("Posts List Found NONE - READING FROM GOOGLE SHEET")
+        currentDomain = passed_domain = parsed.domain.strip().lower() if parsed else None
         
-        if config.PRODUCTION_ENV:
-            posts_list = read_from_google_spreadsheet(config.domains_data[currentDomain][config.KEY_SHEET_ID])
-        else: #Test Environment
-            posts_list = read_from_google_spreadsheet(config.SHEET_ID_TEST_QA)
+        key                 = parsed.key.strip() if parsed and parsed.key else None
+        target_product      = parsed.product.strip().lower() if parsed and parsed.product else None
+        target_author       = parsed.author.strip().lower()  if parsed and parsed.author  else None
+        translation_limit   = parsed.limit if parsed and parsed.limit is not None else None
+
+        posts_list = posts_list_to_translate or (parsed.posts_list if parsed else None)
+
+        print("Domain:", currentDomain)
+        print("Product:", target_product)
+        print("Author:", target_author)
+        print("Limit:", translation_limit)
+
+        if posts_list is None:
+            print("Posts List Found NONE - READING FROM GOOGLE SHEET")
             
+            if config.PRODUCTION_ENV:
+                posts_list = read_from_google_spreadsheet(config.domains_data[currentDomain][config.KEY_SHEET_ID])
+            else: #Test Environment
+                posts_list = read_from_google_spreadsheet(config.SHEET_ID_TEST_QA)
+                
 
 
-    # PRINTING POSTS LIST ==========================
-    if posts_list is not None:
-        print("="*60)
-        for post in posts_list:
-            print(post[1], " > ", post[2], " by ", post[3])
-        print("="*60)
-
-    # ======================
-    # FILTER by AUTHOR
-    # ======================
-    if target_author is not None and posts_list is not None:
-        posts_list = [row for row in posts_list if row[3].strip().lower() == target_author.strip().lower()]
-
-    # ======================
-    # FILTER by PRODUCT
-    # ======================
-    if target_product is not None and posts_list is not None:
-        target_product = config.PRODUCT_MAP.get(target_product.strip().lower(), None)
-        posts_list = [row for row in posts_list if row[1].strip().lower() == target_product.strip().lower()]
-
-    # ======================
-    # FILTER by LIMIT
-    # ======================
-    if translation_limit is not None and posts_list is not None:
-        if translation_limit < len(posts_list):
-            posts_list = posts_list[:translation_limit]
-
-    if posts_list is None:
-        print("="*60)
-        print(f"There is nothing to translate....: {posts_list}")
-        print("="*60)
-
-    else:
-        print(f"Starting Translation for {len(posts_list)} posts.")
         # PRINTING POSTS LIST ==========================
-        print("="*60)
-        for post in posts_list:
-            print(post[1], " > ", post[2], "\tby\t>\t", post[3])
-        print("="*60)
+        if posts_list is not None:
+            print("="*60)
+            for post in posts_list:
+                print(post[1], " > ", post[2], " by ", post[3])
+            print("="*60)
+
+        # ======================
+        # FILTER by AUTHOR
+        # ======================
+        if target_author is not None and posts_list is not None:
+            posts_list = [row for row in posts_list if row[3].strip().lower() == target_author.strip().lower()]
+
+        # ======================
+        # FILTER by PRODUCT
+        # ======================
+        if target_product is not None and posts_list is not None:
+            target_product = config.PRODUCT_MAP.get(target_product.strip().lower(), None)
+            posts_list = [row for row in posts_list if row[1].strip().lower() == target_product.strip().lower()]
+
+        # ======================
+        # FILTER by LIMIT
+        # ======================
+        if translation_limit is not None and posts_list is not None:
+            if translation_limit < len(posts_list):
+                posts_list = posts_list[:translation_limit]
+
+        if posts_list is None:
+            print("="*60)
+            print(f"There is nothing to translate....: {posts_list}")
+            print("="*60)
+
+        else:
+            print(f"Starting Translation for {len(posts_list)} posts.")
+            # PRINTING POSTS LIST ==========================
+            print("="*60)
+            for post in posts_list:
+                print(post[1], " > ", post[2], "\tby\t>\t", post[3])
+            print("="*60)
 
 
-        orchestrator = TranslationOrchestrator(api_key=key)
-        orchestrator.translate_files(currentDomain, target_author, translation_limit, posts_list)
+            orchestrator = TranslationOrchestrator(api_key=key)
+            metrics = orchestrator.translate_files(currentDomain, target_author, translation_limit, posts_list)
+
+    except Exception as e:
+        status = "error"
+        print(f"Error during execution: {e}")
+        raise  # Re-raise to maintain original behavior
+
+    end_time = time.time()
+    run_duration_ms = int((end_time - start_time) * 1000)
+    run_id = str(uuid.uuid4())
+
+    product_full_name = config.PRODUCT_MAP[currentDomain][target_product] if target_product else config.JOB_ALL_PRODUCTS
+
+    metrics_product = currentDomain
+    if target_product:
+        metrics_product = config.PRODUCT_MAP[currentDomain][target_product] if target_product else config.JOB_ALL_PRODUCTS
+
+    send_metrics(    run_id, 
+                            status, 
+                            run_duration_ms, 
+                            agent_name=config.AGENT_BLOG_POST_TRANSLATOR, 
+                            job_type= config.JOB_TYPE_TRANSLATION,
+                            item_name=config.JOB_ITEM_TRANSLATIONS,
+                            items_discovered=metrics.items_discovered,
+                            items_failed=metrics.items_failed,
+                            items_succeeded=metrics.items_succeeded,
+                            product=metrics_product #product_full_name
+                        )
+
 
 # Example usage
 if __name__ == "__main__":
