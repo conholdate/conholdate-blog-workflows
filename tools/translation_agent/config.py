@@ -408,7 +408,7 @@ PRODUCT_MAP = {
 
 # METRICS CONFIGURATION ========================
 METRICS_URL     = "https://script.google.com/macros/s/AKfycbyCHwElrM6RcYLi0JNQAkJmzGrBjAhf28mKXVyub_6SdaZ2ITvzCwfM5xCLE7rmuxio/exec"
-METRICS_TOKEN   = "9q9TWN5GaH6cn"
+METRICS_TOKEN   = "lM6iU2mW0gV1eZ"
 
 AGENT_BLOG_SCANNER          = "Blog Scanner Agent"
 AGENT_BLOG_POST_TRANSLATOR  = "Blog Translator Agent"
