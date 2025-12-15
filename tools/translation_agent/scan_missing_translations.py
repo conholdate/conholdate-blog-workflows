@@ -124,19 +124,21 @@ def main():
     run_id = str(uuid.uuid4())
 
     current_domain = selected_domains[0] if len(selected_domains) == 1 else ""
+    root_domain = current_domain.replace("blog.", "")
     product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.JOB_ALL_PRODUCTS
 
 
     send_metrics(    run_id, 
                             status, 
                             run_duration_ms, 
-                            agent_name=config.AGENT_BLOG_SCANNER, 
-                            job_type= config.JOB_TYPE_SCANNING,
-                            item_name=config.JOB_ITEM_MISS_TRANSLATIONS,
-                            items_discovered=metrics.items_discovered,
-                            items_failed=metrics.items_failed,
-                            items_succeeded=metrics.items_succeeded,
-                            product=current_domain #product_full_name
+                            agent_name          = config.AGENT_BLOG_SCANNER, 
+                            job_type            = config.JOB_TYPE_SCANNING,
+                            item_name           = config.JOB_ITEM_MISS_TRANSLATIONS,
+                            items_discovered    = metrics.items_discovered,
+                            items_failed        = metrics.items_failed,
+                            items_succeeded     = metrics.items_succeeded,
+                            website             = root_domain,
+                            product             = product_full_name
                         )
 
     print("\n========= END =========")

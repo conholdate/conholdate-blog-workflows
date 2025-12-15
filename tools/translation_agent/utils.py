@@ -14,9 +14,11 @@ def send_metrics(run_id,
                  items_discovered,
                  items_failed,
                  items_succeeded, 
-                 agent_owner    = config.AGENT_OWNER, 
-                 product        = config.JOB_ALL_PRODUCTS, 
-                 platform       = config.JOB_ALL_PLATFORMS
+                 website,
+                 website_section    = config.WEBSITE_SECTION_BLOG,
+                 agent_owner        = config.AGENT_OWNER, 
+                 product            = config.JOB_ALL_PRODUCTS, 
+                 platform           = config.JOB_ALL_PLATFORMS
                  ):
     payload = {
         "timestamp"         : datetime.now(timezone(timedelta(hours=5))).isoformat(),
@@ -27,6 +29,8 @@ def send_metrics(run_id,
         "status"            : status,
         "product"           : product,
         "platform"          : platform,
+        "website"           : website,
+        "website_section"   : website_section,
         "item_name"         : item_name,
         "items_discovered"  : items_discovered,
         "items_failed"      : items_failed,

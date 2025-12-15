@@ -27,7 +27,7 @@ SHEET_ID_CONHOLDATE_CLOUD   = "1Ofoc8f-jbguE4rUGkKNLFvLObxPll9s3_Hw97UsZizs"
 
 SHEET_ID_TEST_QA        = "1LC7-DgkxufOqdmipJ-s-p_FZLixH0n6pNnPkIJjjqbc"
 METRICS_URL_DEV         = "https://script.google.com/macros/s/AKfycbwYyPBs3ox6xhYfznVpu4Gh8T4l7cXrAIj1m_y1g-vWn6tyP_LAkv3eo6W2EZYAeHgLag/exec"
-METRICS_TOKEN_DEV       = "xxx-my-secret-token-xxx"
+METRICS_TOKEN_DEV       = "blog_team_agent-2026"
 
 SHEET_ID_SUMMARY        = "1G_Q_shGbNXJCp-xu_maqFZWddpB-VksQh_Ni0OfxDts"
 
@@ -427,6 +427,8 @@ JOB_ALL_PLATFORMS           = "ALL"
 JOB_STATUS_SUCCESS          = "success"
 JOB_STATUS_FAILED           = "failed"
 JOB_STATUS_PARTIAL_FAIL     = "partial_fail"
+
+WEBSITE_SECTION_BLOG      = "Blog"
 
 
 from dataclasses import dataclass
