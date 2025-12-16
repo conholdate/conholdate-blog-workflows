@@ -39,15 +39,15 @@ def send_metrics(run_id,
     }
     print(f"PAYLOAD:\n{payload}")
     
-    if config.PRODUCTION_ENV:
-        try:
-            response = requests.post(f"{config.METRICS_URL}?token={config.METRICS_TOKEN}", json=payload, headers={"Content-Type": "application/json"})
-            if response.status_code == 200:
-                print("✅ Metrics sent successfully")
-            else:
-                print(f"Failed to send metrics: {response.status_code} - {response.text}")
-        except Exception as e:
-            print(f"❌ Error sending metrics: {e}")
+    # if config.PRODUCTION_ENV:
+    #     try:
+    #         response = requests.post(f"{config.METRICS_URL}?token={config.METRICS_TOKEN}", json=payload, headers={"Content-Type": "application/json"})
+    #         if response.status_code == 200:
+    #             print("✅ Metrics sent successfully")
+    #         else:
+    #             print(f"Failed to send metrics: {response.status_code} - {response.text}")
+    #     except Exception as e:
+    #         print(f"❌ Error sending metrics: {e}")
 
     try:
         payload["run_env"] = "PROD" if config.PRODUCTION_ENV else "DEV"
