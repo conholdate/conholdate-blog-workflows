@@ -17,8 +17,8 @@ def send_metrics(run_id,
                  website,
                  website_section    = config.WEBSITE_SECTION_BLOG,
                  agent_owner        = config.AGENT_OWNER, 
-                 product            = config.JOB_ALL_PRODUCTS, 
-                 platform           = config.JOB_ALL_PLATFORMS
+                 product            = config.NOT_APPLICABLE, 
+                 platform           = config.NOT_APPLICABLE
                  ):
     payload = {
         "timestamp"         : datetime.now(timezone(timedelta(hours=5))).isoformat(),

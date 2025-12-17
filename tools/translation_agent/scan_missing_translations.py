@@ -125,7 +125,7 @@ def main():
 
     current_domain = selected_domains[0] if len(selected_domains) == 1 else ""
     root_domain = current_domain.replace("blog.", "")
-    product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.JOB_ALL_PRODUCTS
+    product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.NOT_APPLICABLE
 
 
     send_metrics(    run_id, 
@@ -188,8 +188,6 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
             # Get current date
             current_date = datetime.now().strftime("%Y-%m-%d")
 
-
-
             # for name in input_names:
             #     # Convert the input name to title case to match the dictionary keys
             #     formatted_name = name.title()
@@ -226,6 +224,10 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
                             # print(f"added: {official_handle}")
                     else:
                         print(f"\n⚠️ Handle not found for: {person}")
+                
+                # --- Sorting Logic ---
+                # Sorts the list 'converted_result' in-place based on the element at index 2 (column C/3)
+                converted_result.sort(key=lambda x: x[2])    
 
             else:
                 converted_result.append(["", "!!! NO MISSING TRANSLATION FOUND !!!"])
