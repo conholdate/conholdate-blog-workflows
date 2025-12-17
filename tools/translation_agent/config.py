@@ -423,6 +423,7 @@ JOB_TYPE_TRANSLATION        = "Blog Post Translation"
 
 JOB_ALL_PRODUCTS            = "ALL"
 JOB_ALL_PLATFORMS           = "ALL"
+NOT_APPLICABLE               = "NA"
 
 JOB_STATUS_SUCCESS          = "success"
 JOB_STATUS_FAILED           = "failed"
