@@ -1,4 +1,3 @@
-
 DOMAIN_ASPOSE_COM           = "blog.aspose.com"
 DOMAIN_GROUPDOCS_COM        = "blog.groupdocs.com"
 DOMAIN_CONHOLDATE_COM       = "blog.conholdate.com"
@@ -64,7 +63,6 @@ DEV_YANA_LITVINCHIK      = "@yanalitvinchik"
 DEV_VLADIMIR_LITVINCHIK  = "@vlitvinchik"
 DEV_GROUPDOCS_TEAM       = "@vlitvinchik"
 DEV_YURIY_MAZURCHUK      = "@ymazurchuk"
-
 
 DEV = {
     "Alexander Hramov"      : DEV_ALEXANDER_HRAMOV,
@@ -138,6 +136,7 @@ domains_data = {
 # HEADERS for Missing Translations ==============
 KEY_PRODUCT_NAME    = "Product"
 KEY_DIR_BASE        = "Blog Post Directory"
+KEY_POST_URL        = "Blog Post URL"
 KEY_AUTHOR          = "Author"
 KEY_MISSING_COUNT   = "Missing Count"
 KEY_MISSING_FILES   = "Missing Translations"
@@ -156,6 +155,7 @@ HEADERS_MISSING_TRANSLATIONS = [
     KEY_DOMAIN,
     KEY_PRODUCT_NAME,
     KEY_DIR_BASE,
+    KEY_POST_URL,
     KEY_AUTHOR,
     KEY_MISSING_COUNT,
     KEY_MISSING_FILES,
@@ -163,7 +163,6 @@ HEADERS_MISSING_TRANSLATIONS = [
     KEY_EXTRA_COUNT,
     KEY_STATUS
 ]
-
 
 # "Date", "Domain", "Invalid Folder Count", "Authors", "Details Spreadsheet"
 HEADERS_SUMMARY = [
@@ -174,7 +173,6 @@ HEADERS_SUMMARY = [
     KEY_SPREADSHEET_LINK,
     KEY_IS_SEND_EMAIL
 ]
-
 
 PRODUCT_MAP = {
 
@@ -402,9 +400,25 @@ PRODUCT_MAP = {
 
     # Combined - SHORT NAMES
     "total"         : "total",
-
-
 }
+
+PLATFORMS = sorted({
+    ".NET", "Java", "C++",
+    "Python", "Python via .NET", "Python via Java", "Python via C++",
+    "Android via Java", "SharePoint", "Reporting Services",
+    "JasperReports",
+    "Node.js", "Node.js via .NET", "Node.js via Java", "Node.js via C++",
+    "PHP via Java",
+    "JavaScript via .NET", "JavaScript via C++",
+    "Go via C++", "Rust via C++",
+
+    # Cloud
+    "cURL", "PHP", "Ruby", "Swift", "Go", "Dart",
+    "Android", "Perl", "JavaScript",
+
+    # Extra
+    "Apex"
+})
 
 # METRICS CONFIGURATION ========================
 METRICS_URL     = "https://script.google.com/macros/s/AKfycbyCHwElrM6RcYLi0JNQAkJmzGrBjAhf28mKXVyub_6SdaZ2ITvzCwfM5xCLE7rmuxio/exec"
@@ -439,3 +453,4 @@ class Stats:
     items_discovered: int
     items_failed: int
     items_succeeded: int
+    items_skipped: int

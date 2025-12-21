@@ -125,7 +125,8 @@ def main():
 
     current_domain = selected_domains[0] if len(selected_domains) == 1 else ""
     root_domain = current_domain.replace("blog.", "")
-    product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.NOT_APPLICABLE
+
+    product_full_name = config.PRODUCT_MAP[current_domain][target_product] if target_product else config.PRODUCT_MAP[current_domain]["total"]
 
 
     send_metrics(    run_id, 
@@ -138,7 +139,8 @@ def main():
                             items_failed        = metrics.items_failed,
                             items_succeeded     = metrics.items_succeeded,
                             website             = root_domain,
-                            product             = product_full_name
+                            product             = product_full_name,
+                            platform            = config.JOB_ALL_PLATFORMS  
                         )
 
     print("\n========= END =========")
@@ -205,6 +207,7 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
                         domain,
                         item[config.KEY_PRODUCT_NAME],
                         item[config.KEY_DIR_BASE],
+                        (f"{domain}{item[config.KEY_POST_URL]}"),
                         item[config.KEY_AUTHOR],
                         item[config.KEY_MISSING_COUNT],
                         ", ".join(item[config.KEY_MISSING_FILES]),  # Convert list to string
@@ -341,7 +344,8 @@ def validate_blog_dirs(base_path, valid_md_file_regex, valid_extensions, total_v
     """
     invalid_blog_dirs = []
     # author_regex = re.compile(r'author:\s*"?([^"]+)"?')  # Matches author: "Name" or author: Name
-    author_regex = re.compile(r"author:\s*['\"]?([^'\"]+)['\"]?")
+    author_regex    = re.compile(r"author:\s*['\"]?([^'\"]+)['\"]?")
+    url_regex       = re.compile(r"url:\s*['\"]?([^\s'\"]+)['\"]?")
 
     for product_name in os.listdir(base_path):
         product_path = os.path.join(base_path, product_name)
@@ -372,7 +376,9 @@ def validate_blog_dirs(base_path, valid_md_file_regex, valid_extensions, total_v
 
 
                         # Extract author from index.md
-                        author_name = "-- Unknown --"
+                        author_name = None
+                        url_link = None
+
                         index_md_path = os.path.join(blog_dir_path, "index.md")
 
                         # print(f"index_md_path: {index_md_path}")
@@ -382,10 +388,22 @@ def validate_blog_dirs(base_path, valid_md_file_regex, valid_extensions, total_v
                             try:
                                 with open(index_md_path, "r", encoding="utf-8") as f:
                                     for line in f:
-                                        match = author_regex.search(line)
-                                        if match:
-                                            author_name = match.group(1)
-                                            break  # Stop searching after finding the author
+                                        # Search for author if we haven't found it yet
+                                        if not author_name:
+                                            author_match = author_regex.search(line)
+                                            if author_match:
+                                                author_name = author_match.group(1).strip()
+
+                                        # Search for url if we haven't found it yet
+                                        if not url_link:
+                                            url_match = url_regex.search(line)
+                                            if url_match:
+                                                url_link = url_match.group(1).strip()
+
+                                        # Break ONLY when both have been found
+                                        if author_name and url_link:
+                                            break
+
                             except UnicodeDecodeError as e:
                                 print(f"❌❌ UnicodeDecodeError while reading: {index_md_path} ❌❌")
                                 print(f"   → {e}")
@@ -394,6 +412,7 @@ def validate_blog_dirs(base_path, valid_md_file_regex, valid_extensions, total_v
                             invalid_blog_dirs.append({
                                 config.KEY_PRODUCT_NAME    : product_name,
                                 config.KEY_DIR_BASE        : blog_dir,
+                                config.KEY_POST_URL        : url_link,
                                 config.KEY_AUTHOR          : author_name.strip(),  # Add extracted author name
                                 config.KEY_MISSING_COUNT   : missing_count,
                                 config.KEY_MISSING_FILES   : missing_files,

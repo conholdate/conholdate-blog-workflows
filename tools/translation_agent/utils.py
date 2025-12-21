@@ -5,20 +5,28 @@ from datetime import datetime, timedelta, timezone
 import config
 
 
-def send_metrics(run_id, 
-                 status, 
-                 run_duration_ms, 
-                 agent_name,
-                 job_type,
-                 item_name, 
-                 items_discovered,
-                 items_failed,
-                 items_succeeded, 
-                 website,
-                 website_section    = config.WEBSITE_SECTION_BLOG,
-                 agent_owner        = config.AGENT_OWNER, 
-                 product            = config.NOT_APPLICABLE, 
-                 platform           = config.NOT_APPLICABLE
+def send_metrics(   run_id, 
+                    status, 
+                    run_duration_ms, 
+                    agent_name,
+                    job_type,
+                    item_name, 
+                    items_discovered,
+                    items_failed,
+                    items_succeeded, 
+                    items_skipped,
+                    website,
+                    website_section    = config.WEBSITE_SECTION_BLOG,
+                    agent_owner        = config.AGENT_OWNER, 
+                    product            = config.NOT_APPLICABLE, 
+                    platform           = config.NOT_APPLICABLE,
+                    post_dir            = "",
+                    post_url            = "",
+                    post_author         = "",
+                    discovered_items    = "",
+                    failed_items        = "",
+                    succeeded_items     = "",
+                    skipped_items       = ""
                  ):
     payload = {
         "timestamp"         : datetime.now(timezone(timedelta(hours=5))).isoformat(),
@@ -35,7 +43,15 @@ def send_metrics(run_id,
         "items_discovered"  : items_discovered,
         "items_failed"      : items_failed,
         "items_succeeded"   : items_succeeded,
-        "run_duration_ms"   : run_duration_ms
+        "items_skipped"     : items_skipped,
+        "run_duration_ms"   : run_duration_ms,
+        "post_dir"          : post_dir,
+        "post_url"          : post_url,
+        "post_author"       : post_author,
+        "discovered_items"  : discovered_items,
+        "failed_items"      : failed_items,
+        "succeeded_items"   : succeeded_items,
+        "skipped_items"     : skipped_items
     }
     print(f"PAYLOAD:\n{payload}")
     
@@ -52,6 +68,7 @@ def send_metrics(run_id,
     try:
         payload["run_env"] = "PROD" if config.PRODUCTION_ENV else "DEV"
         print(f"PAYLOAD:\n{payload}")
+
         response = requests.post(f"{config.METRICS_URL_DEV}?token={config.METRICS_TOKEN_DEV}", json=payload, headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             print("✅ Metrics sent successfully")

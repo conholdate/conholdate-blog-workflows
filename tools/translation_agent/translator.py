@@ -689,64 +689,125 @@ class TranslationOrchestrator:
                         translation_limit=None, 
                         posts_list_to_translate: List[List[Any]]=None):
 
-        missing_translations_stats = Stats(0, 0, 0)
+        missing_translations_stats = Stats(0, 0, 0, 0)
+        total_start_time = time.time()
+        total_status = "success"
 
         print(f"   Translating {len(posts_list_to_translate)} Items")
 
         for item in posts_list_to_translate:
+ 
+            start_time = time.time()
+            status = "success"
+            
+            items_discovered = 0
+            items_succeeded = 0
+            items_failed = 0
+            items_skipped = 0
+            
+            discovery_list = []
+            failure_list = []
+            success_list = []
+            skipped_list = []
 
-            print(f"✅ Translating: {item}")
-            print(f"\n{'='*60}")
-            print(f"{item[1]}\t>\t{item[2]}\tby\t>\t{item[3]}\tinto\t{item[5]}")
-            print(f"\n{'='*60}")
 
-            domain = item[0]
-            product = item[1]
-            slug = item[2]
-            missed_langs = item[5].split(',')
+            try:
+                print(f"✅ Translating: {item}")
+                print(f"\n{'='*60}")
+                print(f"{item[1]}\t>\t{item[2]}\tby\t>\t{item[3]}\tinto\t{item[6]}")
+                print(f"\n{'='*60}")
 
-            missing_translations_stats.items_discovered += len(missed_langs)
+                domain = item[0]
+                product = item[1]
+                slug = item[2]
+                post_url = item[3]
+                post_author = item[4]
+                missed_langs = discovery_list = [x.strip() for x in item[6].split(',')]
 
-            blog_main_repo = self.config.domain_map.get(domain)
+                missing_translations_stats.items_discovered += len(missed_langs)
+                items_discovered += len(missed_langs)
 
-            if not blog_main_repo:
-                raise ValueError(f"Unknown domain Provided: {currentDomain}")
+                blog_main_repo = self.config.domain_map.get(domain)
 
-            input_path = f"blog-checkedout-repo/content/{blog_main_repo}/{product}/{slug}"
-            index_md_file_path = f"{input_path}/index.md"
+                if not blog_main_repo:
+                    raise ValueError(f"Unknown domain Provided: {currentDomain}")
 
-            print(f"Input Path {input_path}")
-            print(f"Input File Path {index_md_file_path}")
+                input_path = f"blog-checkedout-repo/content/{blog_main_repo}/{product}/{slug}"
+                index_md_file_path = f"{input_path}/index.md"
 
-            for missed_lang in missed_langs:
-                try:
-                    missed_lang = missed_lang.strip()
+                print(f"Input Path {input_path}")
+                print(f"Input File Path {index_md_file_path}")
 
-                    # if input_path/index.{missed_lang}.md exists, skip
-                    output_file_path = f"{input_path}/index.{missed_lang}.md"
-                    if Path(output_file_path).exists():
-                        print(f"⚠️  Skipping translation for {slug} into '{missed_lang}' as it already exists.")
+                for missed_lang in missed_langs:
+                    try:
+                        missed_lang = missed_lang.strip()
+
+                        # if input_path/index.{missed_lang}.md exists, skip
+                        output_file_path = f"{input_path}/index.{missed_lang}.md"
+                        if Path(output_file_path).exists():
+                            print(f"⚠️  Skipping translation for {slug} into '{missed_lang}' as it already exists.")
+                            items_skipped += 1
+                            missing_translations_stats.items_skipped += 1
+                            skipped_list.append(missed_lang)
+                            continue
+
+                        print(f"✅ Translating: {slug} into {missed_lang}...")
+                        translation_file_path = self.translate_file(index_md_file_path, missed_lang, domain)
+
+                        if translation_file_path:
+                            missing_translations_stats.items_succeeded += 1
+                            items_succeeded +=1
+                            success_list.append(missed_lang)
+
+                    except Exception as e:
+                        msg = str(e)
+
+                        # Detect 401 authentication error
+                        if "401" in msg or "Authentication Error" in msg or "token_not_found_in_db" in msg:
+                            print("❌ Authentication failed. CHECK YOUR KEY...")
+                            print("❌ Error:"+ msg)
+                            sys.exit(1)
+
+                        print(f"❌ Error translating {index_md_file_path} to {missed_lang}: {e}\n")
                         continue
+                
+                end_time = time.time()
+                run_duration_ms = int((end_time - start_time) * 1000)
+                run_id = str(uuid.uuid4())
 
-                    print(f"✅ Translating: {slug} into {missed_lang}...")
-                    translation_file_path = self.translate_file(index_md_file_path, missed_lang, domain)
+                items_failed = items_discovered - items_succeeded
+                if items_failed > 0:
+                    failure_list = [item for item in discovery_list if item not in success_list]
 
-                    if translation_file_path:
-                        missing_translations_stats.items_succeeded += 1
 
-                except Exception as e:
-                    msg = str(e)
+                send_metrics(    run_id, 
+                        status, 
+                        run_duration_ms, 
+                        agent_name          = config.AGENT_BLOG_POST_TRANSLATOR, 
+                        job_type            = config.JOB_TYPE_TRANSLATION,
+                        item_name           = config.JOB_ITEM_TRANSLATIONS,
+                        items_discovered    = items_discovered,
+                        items_failed        = items_failed,
+                        items_succeeded     = items_succeeded,
+                        items_skipped       = items_skipped,
+                        product             = config.PRODUCT_MAP[currentDomain][product] if product else config.NOT_APPLICABLE,
+                        website             = domain.replace("blog.", ""),
+                        post_dir            = slug,
+                        post_url            = post_url,
+                        post_author         = post_author,
+                        discovered_items    = ", ".join(discovery_list),
+                        failed_items        = ", ".join(failure_list),
+                        succeeded_items     = ", ".join(success_list),
+                        skipped_items       = ", ".join(skipped_list)
+                    )
+            
+            except Exception as e:
+                status = "error"
+                print(f"Error during Translation: {e}")
+                raise  # Re-raise to maintain original behavior
 
-                    # Detect 401 authentication error
-                    if "401" in msg or "Authentication Error" in msg or "token_not_found_in_db" in msg:
-                        print("❌ Authentication failed. CHECK YOUR KEY...")
-                        print("❌ Error:"+ msg)
-                        sys.exit(1)
-
-                    print(f"❌ Error translating {index_md_file_path} to {missed_lang}: {e}\n")
-                    continue
         missing_translations_stats.items_failed = missing_translations_stats.items_discovered - missing_translations_stats.items_succeeded
-    
+ 
         return missing_translations_stats
     # ============================================================================
     # SINGLE FILE TRANSLATION IN ALL MISSING LANGUAGES
@@ -981,17 +1042,17 @@ def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
     if target_product:
         metrics_product = config.PRODUCT_MAP[currentDomain][target_product] if target_product else config.JOB_ALL_PRODUCTS
 
-    send_metrics(    run_id, 
-                            status, 
-                            run_duration_ms, 
-                            agent_name=config.AGENT_BLOG_POST_TRANSLATOR, 
-                            job_type= config.JOB_TYPE_TRANSLATION,
-                            item_name=config.JOB_ITEM_TRANSLATIONS,
-                            items_discovered=metrics.items_discovered,
-                            items_failed=metrics.items_failed,
-                            items_succeeded=metrics.items_succeeded,
-                            product=metrics_product #product_full_name
-                        )
+    # send_metrics(    run_id, 
+    #                         status, 
+    #                         run_duration_ms, 
+    #                         agent_name=config.AGENT_BLOG_POST_TRANSLATOR, 
+    #                         job_type= config.JOB_TYPE_TRANSLATION,
+    #                         item_name=config.JOB_ITEM_TRANSLATIONS,
+    #                         items_discovered=metrics.items_discovered,
+    #                         items_failed=metrics.items_failed,
+    #                         items_succeeded=metrics.items_succeeded,
+    #                         product=metrics_product #product_full_name
+    #                     )
 
 
 # Example usage
