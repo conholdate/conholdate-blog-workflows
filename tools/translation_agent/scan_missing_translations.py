@@ -138,6 +138,7 @@ def main():
                             items_discovered    = metrics.items_discovered,
                             items_failed        = metrics.items_failed,
                             items_succeeded     = metrics.items_succeeded,
+                            items_skipped       = 0,
                             website             = root_domain,
                             product             = product_full_name,
                             platform            = config.JOB_ALL_PLATFORMS  
