@@ -154,7 +154,7 @@ def validate_existing_translation_files(domains): #path_to_valid_extensions
     Args:
         path_to_valid_extensions (dict): A dictionary mapping paths to their valid file extensions.
     """
-    missing_translations_stats = Stats(0, 0, 0)
+    missing_translations_stats = Stats(0, 0, 0, 0)
 
     # output_path = "/Users/Apple/Library/CloudStorage/GoogleDrive-shoaib.khan@aspose.com/My Drive/Blogs Team/missing-translations/"
     global target_product
