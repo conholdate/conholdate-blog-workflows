@@ -712,10 +712,6 @@ class TranslationOrchestrator:
 
 
             try:
-                print(f"✅ Translating: {item}")
-                print(f"\n{'='*60}")
-                print(f"{item[1]}\t>\t{item[2]}\tby\t>\t{item[3]}\tinto\t{item[6]}")
-                print(f"\n{'='*60}")
 
                 domain = item[0]
                 product = item[1]
@@ -723,6 +719,11 @@ class TranslationOrchestrator:
                 post_url = item[3]
                 post_author = item[4]
                 missed_langs = discovery_list = [x.strip() for x in item[6].split(',')]
+
+                print(f"✅ Translating: {item}")
+                print(f"\n{'='*60}")
+                print(f"{product}\t>\t{slug}\tby\t>\t{post_author}\tinto\t{item[6]}")
+                print(f"\n{'='*60}")
 
                 missing_translations_stats.items_discovered += len(missed_langs)
                 items_discovered += len(missed_langs)
@@ -744,7 +745,7 @@ class TranslationOrchestrator:
 
                         # if input_path/index.{missed_lang}.md exists, skip
                         output_file_path = f"{input_path}/index.{missed_lang}.md"
-                        if Path(output_file_path).exists():
+                        if Path(output_file_path).exists() or not missed_lang:
                             print(f"⚠️  Skipping translation for {slug} into '{missed_lang}' as it already exists.")
                             items_skipped += 1
                             missing_translations_stats.items_skipped += 1
