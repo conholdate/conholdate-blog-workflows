@@ -1032,7 +1032,7 @@ def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
         key                 = parsed.key.strip() if parsed and parsed.key else None
         target_product      = parsed.product.strip().lower() if parsed and parsed.product else None
         target_author       = parsed.author.strip().lower()  if parsed and parsed.author  else None
-        translation_limit   = parsed.limit if parsed and parsed.limit is not None else None
+        translation_limit   = parsed.limit if parsed and parsed.limit is not None else config.domains_data[currentDomain][config.KEY_TRANSLATION_LIMIT]
 
         posts_list = posts_list_to_translate or (parsed.posts_list if parsed else None)
 

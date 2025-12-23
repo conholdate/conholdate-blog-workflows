@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime, timedelta, timezone
 import config
 
-
 def send_metrics(   run_id, 
                     status, 
                     run_duration_ms, 
@@ -18,8 +17,8 @@ def send_metrics(   run_id,
                     website,
                     website_section    = config.WEBSITE_SECTION_BLOG,
                     agent_owner        = config.AGENT_OWNER, 
-                    product            = config.NOT_APPLICABLE, 
-                    platform           = config.NOT_APPLICABLE,
+                    product            = config.JOB_ALL_PRODUCTS, 
+                    platform           = config.JOB_ALL_PLATFORMS,
                     post_dir            = "",
                     post_url            = "",
                     post_author         = "",
@@ -55,15 +54,15 @@ def send_metrics(   run_id,
     }
     print(f"PAYLOAD:\n{payload}")
     
-    # if config.PRODUCTION_ENV:
-    #     try:
-    #         response = requests.post(f"{config.METRICS_URL}?token={config.METRICS_TOKEN}", json=payload, headers={"Content-Type": "application/json"})
-    #         if response.status_code == 200:
-    #             print("✅ Metrics sent successfully")
-    #         else:
-    #             print(f"Failed to send metrics: {response.status_code} - {response.text}")
-    #     except Exception as e:
-    #         print(f"❌ Error sending metrics: {e}")
+    if config.PRODUCTION_ENV and agent_name != config.AGENT_BLOG_SCANNER:
+        try:
+            response = requests.post(f"{config.METRICS_URL}?token={config.METRICS_TOKEN}", json=payload, headers={"Content-Type": "application/json"})
+            if response.status_code == 200:
+                print("✅ Metrics sent successfully")
+            else:
+                print(f"Failed to send metrics: {response.status_code} - {response.text}")
+        except Exception as e:
+            print(f"❌ Error sending metrics: {e}")
 
     try:
         payload["run_env"] = "PROD" if config.PRODUCTION_ENV else "DEV"
