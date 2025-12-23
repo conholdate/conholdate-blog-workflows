@@ -659,6 +659,58 @@ class ContentTranslatorAgent:
 
         return False
 
+# ============================================================================
+# PLATFORM IDENTIFIER AGENT - Identifies the platform of a blog post
+# ============================================================================
+class PlatformIdentifierAgent:
+    """Agent responsible for identifying the platform of a blog post"""
+
+    def __init__(self, client: OpenAI, config: TranslationConfig):
+        self.client = client
+        self.config = config
+        self.name = "PlatformIdentifier"
+
+    def identify_platform(self, content: str) -> str:
+        """
+        Identify the platform from the blog post content using OpenAI
+
+        Args:
+            content: Full content (frontmatter + content) of the markdown file
+
+        Returns:
+            Identified platform string
+        """
+        platforms_list = ", ".join(config.PLATFORMS)
+
+        prompt = f"""Analyze the following blog post content (that is in markdown format) and identify the primary platform it is about.
+
+Available platforms: {platforms_list}
+
+Instructions:
+- Look for mentions of programming languages, frameworks, or technologies that match the platforms.
+- If the content matches ONE of the available platforms exactly, return that ONE platform.
+- If it doesn't match any, return the most appropriate platform based on the content's context.
+- If content matched multiple platforms, return the word "ALL". Forexample: if content show examples of both C# .NET and Java, return "ALL".
+- If content explains online tool approach of a feature then also describes the developer way(s) to achieve it, return "ALL".
+- If content show examples of C# .NET but just slightly mentions that it feature is also available in Java of any other API(s), return ".NET" as .NET is the main platform, major focus, and main subject of the blog post.
+- Return only the ONE platform name, nothing else.
+
+Blog post content:
+{content}
+"""
+
+        try:
+            identified_platform = call_openai(
+                self.client,
+                "You are an expert at identifying software platforms and technologies from technical content.",
+                prompt,
+                temperature=0.1  # Low temperature for consistent classification
+            )
+            return identified_platform.strip()
+        except Exception as e:
+            print(f"   ❌ Error identifying platform: {e}")
+            return "Unknown"
+
 
 # ============================================================================
 # ORCHESTRATOR - Coordinates agents to complete translation task
@@ -675,10 +727,11 @@ class TranslationOrchestrator:
             base_url="https://llm.professionalize.com/v1"
         )
         self.config = TranslationConfig()
-        
+
         # Initialize specialized agents
         self.frontmatter_agent = FrontmatterTranslatorAgent(self.client, self.config)
         self.content_agent = ContentTranslatorAgent(self.client, self.config)
+        self.platform_agent = PlatformIdentifierAgent(self.client, self.config)
     
     # ============================================================================
     # TRANSLATE ALL FILES IN ALL MISSING LANGUAGES
@@ -710,7 +763,6 @@ class TranslationOrchestrator:
             success_list = []
             skipped_list = []
 
-
             try:
 
                 domain = item[0]
@@ -739,6 +791,17 @@ class TranslationOrchestrator:
                 print(f"Input Path {input_path}")
                 print(f"Input File Path {index_md_file_path}")
 
+                # ============================================================================
+                # Identify platform
+                # ============================================================================
+                parsed = parse_markdown_file(index_md_file_path)
+                frontmatter = parsed['frontmatter']
+                post_content = parsed['content']
+                full_content = f"---\n{yaml.dump(frontmatter, allow_unicode=True, sort_keys=False, default_flow_style=False)}---\n\n{post_content}"
+                identified_platform = self.platform_agent.identify_platform(full_content)
+                print(f"   🏷️  Identified Platform: {identified_platform}")
+                # ============================================================================
+
                 for missed_lang in missed_langs:
                     try:
                         missed_lang = missed_lang.strip()
@@ -753,7 +816,9 @@ class TranslationOrchestrator:
                             continue
 
                         print(f"✅ Translating: {slug} into {missed_lang}...")
+
                         translation_file_path = self.translate_file(index_md_file_path, missed_lang, domain)
+                        # translation_file_path = None 
 
                         if translation_file_path:
                             missing_translations_stats.items_succeeded += 1
@@ -786,12 +851,13 @@ class TranslationOrchestrator:
                         run_duration_ms, 
                         agent_name          = config.AGENT_BLOG_POST_TRANSLATOR, 
                         job_type            = config.JOB_TYPE_TRANSLATION,
-                        item_name           = config.JOB_ITEM_TRANSLATIONS,
+                        item_name           = config.JOB_ITEM_TRANSLATIONS_ADDED,
                         items_discovered    = items_discovered,
                         items_failed        = items_failed,
                         items_succeeded     = items_succeeded,
                         items_skipped       = items_skipped,
                         product             = config.PRODUCT_MAP[currentDomain][product] if product else config.NOT_APPLICABLE,
+                        platform            = identified_platform,  
                         website             = domain.replace("blog.", ""),
                         post_dir            = slug,
                         post_url            = post_url,
@@ -837,7 +903,7 @@ class TranslationOrchestrator:
         content = parsed['content']
         print(f"   ✓ Parsed frontmatter with {len(frontmatter)} fields")
         print(f"   ✓ Content: {len(content)} characters")
-        
+
         # ============================================================================
         # Step 2: Translate frontmatter using FrontmatterAgent
         # ============================================================================
@@ -896,6 +962,7 @@ class TranslationOrchestrator:
         print(f"{'='*60}\n")
         
         return str(output_path)
+    
 # ============================================================================
 # ARGUMENT PARSER BUILDING FUNCTION
 # ============================================================================
@@ -1021,7 +1088,7 @@ def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
             # PRINTING POSTS LIST ==========================
             print("="*60)
             for post in posts_list:
-                print(post[1], " > ", post[2], "\tby\t>\t", post[3])
+                print(post[1], " > ", post[2], "\tby\t>\t", post[4])
             print("="*60)
 
 
