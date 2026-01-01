@@ -14,11 +14,11 @@ jobs:
       matrix:
         domain_value:
           - blog.aspose.com
-          - blog.groupdocs.com
-          - blog.conholdate.com
-          - blog.aspose.cloud
-          - blog.groupdocs.cloud
-          - blog.conholdate.cloud
+          # - blog.groupdocs.com
+          # - blog.conholdate.com
+          # - blog.aspose.cloud
+          # - blog.groupdocs.cloud
+          # - blog.conholdate.cloud
 
     steps:
       #############################################################
