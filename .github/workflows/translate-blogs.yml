@@ -233,7 +233,7 @@ jobs:
           args+=("--domain" "${{ inputs.domain }}")
 
           # Key
-          args+=("--key" "${{ secrets.PROFESSIONALIZE_LLM_BLOGS_TEAM }}")
+          args+=("--key" "${{ secrets.PROFESSIONALIZE_API_KEY }}")
 
           # Product
           if [[ -n "${{ inputs.product }}" && "${{ inputs.product }}" != "ALL" ]]; then

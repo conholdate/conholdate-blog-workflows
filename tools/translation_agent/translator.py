@@ -725,7 +725,7 @@ class TranslationOrchestrator:
     def __init__(self, api_key: str = None):
         self.client = OpenAI(
             api_key=api_key,
-            base_url="https://llm.professionalize.com/v1"
+            base_url=config.PROFESSIONALIZE_BASE_URL
         )
         self.config = TranslationConfig()
 
