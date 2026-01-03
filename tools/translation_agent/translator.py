@@ -689,11 +689,12 @@ Available platforms: {platforms_list}
 Instructions:
 - Look for mentions of programming languages, frameworks, or technologies that match the platforms.
 - If the content matches ONE of the available platforms exactly, return that ONE platform.
-- If it doesn't match any, return the most appropriate platform based on the content's context.
+- If it doesn't match any, return "ALL".
 - If content matched multiple platforms, return the word "ALL". Forexample: if content show examples of both C# .NET and Java, return "ALL".
 - If content explains online tool approach of a feature then also describes the developer way(s) to achieve it, return "ALL".
-- If content show examples of C# .NET but just slightly mentions that it feature is also available in Java of any other API(s), return ".NET" as .NET is the main platform, major focus, and main subject of the blog post.
+- If content show examples of C# .NET but just slightly mentions that this feature is also available in Java or any other API(s), return ".NET" as .NET is the main platform, major focus, and main subject of the blog post.
 - Return only the ONE platform name, nothing else.
+- There is no Unknown platform, if you can't identify, return "ALL".
 
 Blog post content:
 {content}
