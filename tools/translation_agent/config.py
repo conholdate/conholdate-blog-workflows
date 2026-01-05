@@ -28,6 +28,7 @@ SHEET_ID_GROUPDOCS_CLOUD    = "1x0Jx0yniKjGMcccmb_2JPJylVP6EIWeN-H2UOC6Y47U"
 SHEET_ID_CONHOLDATE_CLOUD   = "1Ofoc8f-jbguE4rUGkKNLFvLObxPll9s3_Hw97UsZizs"
 
 PROFESSIONALIZE_BASE_URL    = "https://llm.professionalize.com/v1"
+PROFESSIONALIZE_LLM_MODEL   = "gpt-oss"
 
 SHEET_ID_TEST_QA        = "1LC7-DgkxufOqdmipJ-s-p_FZLixH0n6pNnPkIJjjqbc"
 METRICS_URL_DEV         = "https://script.google.com/macros/s/AKfycbwYyPBs3ox6xhYfznVpu4Gh8T4l7cXrAIj1m_y1g-vWn6tyP_LAkv3eo6W2EZYAeHgLag/exec"

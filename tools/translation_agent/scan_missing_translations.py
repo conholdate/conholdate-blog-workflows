@@ -67,7 +67,14 @@ parser.add_argument(
 
 args = parser.parse_args()
 passed_domain = args.domain.strip().lower()
-key                 = args.key.strip() if args and args.key else None
+
+# key                 = args.key.strip() if args and args.key else None
+key = (
+    args.key.strip()
+    if args and getattr(args, "key", None)
+    else os.getenv("PROFESSIONALIZE_API_KEY")
+)
+
 target_product      = args.product.strip() if args and args.product else None
 target_author       = args.author.strip().lower()  if args and args.author  else None
 translation_limit   = args.limit if args and args.limit is not None else None

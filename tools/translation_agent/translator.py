@@ -17,12 +17,13 @@ import config
 import time
 import uuid
 import random
+import os
 
 from utils import send_metrics
 from config import Stats
 
 # ============================================================================
-def call_openai(client: OpenAI, system_prompt: str, user_prompt: str, temperature: float = 0.3, max_tokens: int = None, model: str = "recommended") -> str:
+def call_openai(client: OpenAI, system_prompt: str, user_prompt: str, temperature: float = 0.3, max_tokens: int = None, model: str = config.PROFESSIONALIZE_LLM_MODEL) -> str:
     """
     Unified function to call OpenAI API with customizable prompts and parameters.
 
@@ -971,16 +972,17 @@ def build_parser():
     parser = argparse.ArgumentParser(description="Translate Missing Translation Files")
 
     parser.add_argument(
-        "--key",
-        type=str,
-        required=True,
-        help="PROFESSIONALIZE LLM API KEY (REQUIRED)"
-    )
-    parser.add_argument(
         "--domain",
         type=str,
         required=True,
         help="Which DOMAIN to process (blog.aspose.com, blog.groupdocs.com, etc.) or ALL"
+    )
+
+    parser.add_argument(
+        "--key",
+        type=str,
+        required=False,
+        help="PROFESSIONALIZE LLM API KEY (REQUIRED)"
     )
 
     parser.add_argument(
@@ -1030,7 +1032,17 @@ def start_translation(args=None, posts_list_to_translate: List[List[Any]]=None):
 
         currentDomain = passed_domain = parsed.domain.strip().lower() if parsed else None
         
-        key                 = parsed.key.strip() if parsed and parsed.key else None
+        key = (
+            parsed.key.strip()
+            if parsed and getattr(parsed, "key", None)
+            else os.getenv("PROFESSIONALIZE_API_KEY")
+        )
+
+        if not key:
+            raise RuntimeError(
+                "API key not provided. Use --key or set PROFESSIONALIZE_API_KEY in environment variables."
+            )
+
         target_product      = parsed.product.strip().lower() if parsed and parsed.product else None
         target_author       = parsed.author.strip().lower()  if parsed and parsed.author  else None
         translation_limit   = parsed.limit if parsed and parsed.limit is not None else config.domains_data[currentDomain][config.KEY_TRANSLATION_LIMIT]

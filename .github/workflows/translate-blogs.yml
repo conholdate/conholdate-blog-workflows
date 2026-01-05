@@ -223,6 +223,8 @@ jobs:
         env:
           TARGET_REPO: blog-checkedout-com/content/
           GOOGLE_CREDENTIALS_JSON_SK: ${{secrets.GOOGLE_CREDENTIALS_JSON_SK}}
+          PROFESSIONALIZE_API_KEY: ${{ secrets.PROFESSIONALIZE_API_KEY }}
+
         run: |
           source .venv/bin/activate
           
@@ -232,8 +234,8 @@ jobs:
           # Domain (always required)
           args+=("--domain" "${{ inputs.domain }}")
 
-          # Key
-          args+=("--key" "${{ secrets.PROFESSIONALIZE_API_KEY }}")
+          # # Key
+          # args+=("--key" "${{ secrets.PROFESSIONALIZE_API_KEY }}")
 
           # Product
           if [[ -n "${{ inputs.product }}" && "${{ inputs.product }}" != "ALL" ]]; then

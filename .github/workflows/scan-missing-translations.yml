@@ -115,6 +115,7 @@ jobs:
         env:
           TARGET_REPO: blog-checkedout-com/content/
           GOOGLE_CREDENTIALS_JSON_SK: ${{secrets.GOOGLE_CREDENTIALS_JSON_SK}}
+          PROFESSIONALIZE_API_KEY: ${{ secrets.PROFESSIONALIZE_API_KEY }}
         run: |
           source .venv/bin/activate
           
@@ -124,8 +125,8 @@ jobs:
           # Domain (always required)
           args+=("--domain" "${{ matrix.domain_value }}")
 
-          # Key
-          args+=("--key" "${{ secrets.PROFESSIONALIZE_LLM_BLOGS_TEAM }}")
+          # # Key
+          # args+=("--key" "${{ secrets.PROFESSIONALIZE_API_KEY }}")
 
           # Run the python script safely
           python tools/translation_agent/scan_missing_translations.py "${args[@]}"
