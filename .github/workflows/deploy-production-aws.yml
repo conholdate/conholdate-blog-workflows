@@ -1,4 +1,4 @@
-name: Deploy Conholdate Blog
+name: Deploy Production - AWS
 
 on:
   # push:
