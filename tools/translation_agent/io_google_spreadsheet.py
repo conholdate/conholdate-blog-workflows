@@ -3,6 +3,7 @@ import json
 import gspread
 import sys
 import gspread
+import config
 from datetime import datetime
 from typing import List, Union # For type hints and better readability
 from gspread_formatting import cellFormat, textFormat, format_cell_range # Explicitly import necessary functions/classes
@@ -132,10 +133,9 @@ def write_to_google_spreadsheet(
 
 
         # 5. If the worksheet already existed, clear all its content before writing new data.
-        if worksheet_exists:
+        if worksheet_exists and spreadsheet_id != config.SHEET_ID_SUMMARY:
             target_worksheet.clear()
             print_on_console("Existing worksheet content cleared.")
-
 
         # 6. Write the defined column headers to the first row.
         if valid_extensions:
@@ -143,8 +143,11 @@ def write_to_google_spreadsheet(
             target_worksheet.append_row(["Language Support: ", langs_with_commas])
 
         # 7. Write the defined column headers to the first row.
-        target_worksheet.append_row(column_headers)
-        print_on_console("Headers written.")
+        if worksheet_exists and spreadsheet_id == config.SHEET_ID_SUMMARY:
+            print_on_console("Not writing headers to existing SUMMARY SHEET.")
+        else:
+            target_worksheet.append_row(column_headers)
+            print_on_console("Headers written.")
         
         # --- Format the header row (make it bold) dynamically ---
         # Determine the last column letter based on the number of headers
