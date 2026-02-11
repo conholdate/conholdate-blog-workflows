@@ -121,12 +121,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        if: ${{ steps.select.outputs.run_this == 'true' }}
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt pandas
-
       - name: Random delay (jitter the daily run)
         if: ${{ github.event_name == 'schedule' || inputs.skip_jitter == false }}
         run: |
@@ -139,11 +133,19 @@ jobs:
         env:
           BLOG_REPOS_TOKEN: ${{ secrets.BLOG_REPOS_TOKEN }}
         run: |
+          git clone --depth=1 https://github.com/conholdate/blog-optimization-agent optimizer-agent
+
           if [ -n "$BLOG_REPOS_TOKEN" ]; then
             git clone --depth=1 --branch "${{ matrix.default_branch }}" https://x-access-token:${BLOG_REPOS_TOKEN}@github.com/${{ matrix.repo }} "${{ matrix.path }}"
           else
             git clone --depth=1 --branch "${{ matrix.default_branch }}" https://github.com/${{ matrix.repo }} "${{ matrix.path }}"
           fi
+
+      - name: Install dependencies
+        if: ${{ steps.select.outputs.run_this == 'true' }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r optimizer-agent/requirements.txt pandas
 
       - name: Run optimizer
         if: ${{ steps.select.outputs.run_this == 'true' }}
@@ -155,7 +157,7 @@ jobs:
           BLOG_OPTIMIZER_API_TOKEN: ${{ secrets.BLOG_OPTIMIZER_API_TOKEN }}
           BLOGS_TEAM_TOKEN: ${{ secrets.BLOGS_TEAM_TOKEN }}
         run: |
-          python blog_optimizer_agent.py --brand ${{ matrix.brand }} --sourcepath "${{ github.workspace }}/${{ matrix.path }}"
+          python optimizer-agent/blog_optimizer_agent.py --brand ${{ matrix.brand }} --sourcepath "${{ github.workspace }}/${{ matrix.path }}"
 
       - name: Commit optimized content back to blog repo
         if: ${{ steps.select.outputs.run_this == 'true' }}
