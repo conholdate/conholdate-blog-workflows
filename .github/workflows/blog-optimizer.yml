@@ -133,13 +133,20 @@ jobs:
         env:
           BLOG_REPOS_TOKEN: ${{ secrets.BLOG_REPOS_TOKEN }}
         run: |
-          git clone --depth=1 https://github.com/conholdate/blog-optimization-agent optimizer-agent
-
           if [ -n "$BLOG_REPOS_TOKEN" ]; then
             git clone --depth=1 --branch "${{ matrix.default_branch }}" https://x-access-token:${BLOG_REPOS_TOKEN}@github.com/${{ matrix.repo }} "${{ matrix.path }}"
           else
             git clone --depth=1 --branch "${{ matrix.default_branch }}" https://github.com/${{ matrix.repo }} "${{ matrix.path }}"
           fi
+
+      - name: Checkout optimizer agent
+        if: ${{ steps.select.outputs.run_this == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          repository: conholdate/blog-optimization-agent
+          token: ${{ secrets.BLOG_OPTIMIZER_REPO_TOKEN }}
+          path: optimizer-agent
+          fetch-depth: 1
 
       - name: Install dependencies
         if: ${{ steps.select.outputs.run_this == 'true' }}
