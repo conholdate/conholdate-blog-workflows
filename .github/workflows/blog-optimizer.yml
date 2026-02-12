@@ -153,6 +153,36 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r optimizer-agent/requirements.txt pandas
 
+      - name: Preflight: verify optimizer secrets
+        if: ${{ steps.select.outputs.run_this == 'true' }}
+        env:
+          PROFESSIONALIZE_API_KEY: ${{ secrets.PROFESSIONALIZE_API_KEY }}
+          PROFESSIONALIZE_BASE_URL: ${{ secrets.PROFESSIONALIZE_BASE_URL }}
+          PROFESSIONALIZE_LLM_MODEL: ${{ secrets.PROFESSIONALIZE_LLM_MODEL }}
+          PROFESSIONALIZE_EMBEDDING_MODEL: ${{ secrets.PROFESSIONALIZE_EMBEDDING_MODEL }}
+        run: |
+          missing=0
+
+          if [ -z "$PROFESSIONALIZE_API_KEY" ]; then
+            echo "Missing secret: PROFESSIONALIZE_API_KEY"
+            missing=1
+          fi
+
+          if [ -z "$PROFESSIONALIZE_BASE_URL" ]; then
+            echo "Missing secret: PROFESSIONALIZE_BASE_URL"
+            missing=1
+          fi
+
+          if [ -z "$PROFESSIONALIZE_LLM_MODEL" ]; then
+            echo "Missing secret: PROFESSIONALIZE_LLM_MODEL"
+            missing=1
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            echo "One or more required secrets are missing. Set them in repo Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
       - name: Run optimizer
         if: ${{ steps.select.outputs.run_this == 'true' }}
         env:
