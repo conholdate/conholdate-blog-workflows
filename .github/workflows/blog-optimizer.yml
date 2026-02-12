@@ -215,6 +215,6 @@ jobs:
             exit 0
           fi
 
-          git -C "${{ matrix.path }}" commit -m "Blog Optimization Agent (${{ matrix.brand }})"
+          git -C "${{ matrix.path }}" commit -m "Blog Optimization Agent"
           git -C "${{ matrix.path }}" pull --rebase origin "${{ matrix.default_branch }}"
           git -C "${{ matrix.path }}" push origin "HEAD:${{ matrix.default_branch }}"
