@@ -162,8 +162,9 @@ jobs:
           PROFESSIONALIZE_EMBEDDING_MODEL: ${{ secrets.PROFESSIONALIZE_EMBEDDING_MODEL }}
           BLOG_OPTIMIZER_API_TOKEN: ${{ secrets.BLOG_OPTIMIZER_API_TOKEN }}
           BLOGS_TEAM_TOKEN: ${{ secrets.BLOGS_TEAM_TOKEN }}
+        working-directory: optimizer-agent
         run: |
-          python optimizer-agent/blog_optimizer_agent.py --brand ${{ matrix.brand }} --sourcepath "${{ github.workspace }}/${{ matrix.path }}"
+          python blog_optimizer_agent.py --brand ${{ matrix.brand }} --sourcepath "${{ github.workspace }}/${{ matrix.path }}"
 
       - name: Commit optimized content back to blog repo
         if: ${{ steps.select.outputs.run_this == 'true' }}
