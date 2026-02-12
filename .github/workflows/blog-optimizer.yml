@@ -153,7 +153,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r optimizer-agent/requirements.txt pandas
 
-      - name: Preflight: verify optimizer secrets
+      - name: "Preflight: verify optimizer secrets"
         if: ${{ steps.select.outputs.run_this == 'true' }}
         env:
           PROFESSIONALIZE_API_KEY: ${{ secrets.PROFESSIONALIZE_API_KEY }}
@@ -179,7 +179,7 @@ jobs:
           fi
 
           if [ "$missing" -ne 0 ]; then
-            echo "One or more required secrets are missing. Set them in repo Settings → Secrets and variables → Actions."
+            echo "One or more required secrets are missing. Set them in repo Settings -> Secrets and variables -> Actions."
             exit 1
           fi
 
